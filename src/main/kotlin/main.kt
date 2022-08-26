@@ -10,8 +10,8 @@ fun main() {
     posts.add(
         Post(
             from = "Семен", text = "Новый Текст 10", attachments = arrayOf(
-                Attachment.AudioAttachment(1, duration = 10),
-                Attachment.VideoAttachment(1, "Название")
+                Attachment.AudioAttachment(Audio(1, duration = 10)),
+                Attachment.VideoAttachment(Video(1, "Название"))
             )
         )
     )
@@ -40,37 +40,61 @@ data class Likes(
     val can_publish: Boolean = true,
 )
 
-sealed class Attachment (val type: String) {
+data class Video(
+    val id: Int,
+    val description: String,
+    val title: String? = null
+)
+
+data class Audio(
+    val id: Int,
+    val artist: String? = null,
+    val title: String? = null,
+    val duration: Int
+)
+
+data class Doc(
+    val id: Int,
+    val title: String,
+    val size: Int,
+    val url: Int,
+    val ext: String
+)
+
+data class Poll(
+    val id: Int,
+    val votes: Int,
+    val anonymous: Boolean,
+    val multiple: Boolean,
+    val question: String
+)
+
+data class Note(
+    val id: Int,
+    val title: String,
+    val text: String
+)
+
+sealed class Attachment(val type: String) {
     data class VideoAttachment(
-        val id: Int,
-        val description: String,
-        val title: String? = null,
-        ) : Attachment("Видео")
+        val video: Video
+    ) : Attachment("video")
+
     data class AudioAttachment(
-        val id: Int,
-        val artist: String? = null,
-        val title: String? = null,
-        val duration: Int
-        ) : Attachment("Аудио")
+        val audio: Audio
+    ) : Attachment("audio")
+
     data class DocAttachment(
-        val id: Int,
-        val title: String,
-        val size: Int,
-        val url: Int,
-        val ext: String
-        ) : Attachment("Документы")
+        val doc: Doc
+    ) : Attachment("doc")
+
     data class PollAttachment(
-        val id: Int,
-        val votes: Int,
-        val anonymous: Boolean,
-        val multiple: Boolean,
-        val question: String
-        ) : Attachment("Опросы")
+        val poll: Poll
+    ) : Attachment("poll")
+
     data class NoteAttachment(
-        val id: Int,
-        val title: String,
-        val text: String
-        ) : Attachment("Заметка")
+        val note: Note
+    ) : Attachment("note")
 }
 
 object WallService {
