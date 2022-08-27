@@ -1,3 +1,4 @@
+import java.lang.RuntimeException
 import java.util.Date
 
 fun main() {
@@ -17,6 +18,9 @@ fun main() {
     )
 
     posts.print()
+    println(posts.createComment(3, Comment(text = "Привет")))
+
+    println(posts.wallReportComment(reportComment(comment_id = 1, reason = 6)))
 }
 
 data class Post(
@@ -31,6 +35,19 @@ data class Post(
     val likes: Likes = Likes(1),
     val copyright: String? = null,
     var attachments: Array<Attachment> = emptyArray()
+)
+
+data class Comment(
+    val id: Int = 0,
+    val from_id: Int? = null,
+    val date: Date = Date(),
+    val text: String,
+)
+
+data class reportComment(
+    val owner_id: String? = null,
+    val comment_id: Int,
+    val reason: Int
 )
 
 data class Likes(
@@ -97,9 +114,15 @@ sealed class Attachment(val type: String) {
     ) : Attachment("note")
 }
 
+class NotFoundException(msg: String) : RuntimeException(msg)
+
 object WallService {
     private var posts = emptyArray<Post>()
     private var id_new: Int = 0
+    private var id_comment: Int = 0
+    private var comments = emptyArray<Comment>()
+    private var reportComments = emptyArray<reportComment>()
+    private val reasonArray: Array<Int> = arrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8)
 
     fun print() {
         for (post in posts) {
@@ -122,6 +145,32 @@ object WallService {
             }
         }
         return false
+    }
+
+    fun createComment(postId: Int, comment: Comment): Comment {
+        for (post in posts) {
+            if (post.id == postId) {
+                id_comment += 1
+                comments += comment.copy(id = id_comment)
+                return comments.last()
+            }
+        }
+        throw NotFoundException("Пост с id равным $postId не найден")
+    }
+
+    fun wallReportComment(reportComment: reportComment): reportComment {
+
+        if (!reasonArray.contains(reportComment.reason)) {
+            throw NotFoundException("Причина с id равным ${reportComment.reason} не найден")
+        }
+
+        for (comment in comments) {
+            if (comment.id == reportComment.comment_id) {
+                reportComments += reportComment
+                return reportComments.last()
+            }
+        }
+        throw NotFoundException("Комментарий с id равным ${reportComment.comment_id} не найден")
     }
 }
 
